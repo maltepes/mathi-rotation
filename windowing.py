@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import numpy as np
+from manplot import *
 
 
 def overlapping(filename, OL_StartEndBP):
@@ -89,8 +90,8 @@ def overlapping(filename, OL_StartEndBP):
     sigSNPs.to_csv("sigSNPs_" + filename)
     df.to_csv(filename, index=False)
 
-    # if !OL_StartEndBP:
-    #     manplot(filename)
+    if not OL_StartEndBP:
+        manplot(filename)
     #     qqplot(filename)
     # else:
     #     sigSNPsTable("sigSNPs_" + filename)
