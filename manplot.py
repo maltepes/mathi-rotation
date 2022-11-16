@@ -13,7 +13,7 @@ def manplot(filename):
     df = pd.read_csv(filename)
 
     # if the pvalue column is not already in -log form
-    # df['-logp'] = - np.log(df["P"])
+    # df['-logp'] = -np.log(df["P"])
 
     df["-logP"] = df["P"]
 
@@ -54,9 +54,8 @@ def manplot(filename):
 
 
 # show the graph
-    #plt.fig(figsize=(20, 5))
     plt.ylim(0, 8.5)
-    plt.show()
+    plt.savefig("test.manplot_" + filename + ".png")
 
 
 if __name__ == '__main__':

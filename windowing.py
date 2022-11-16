@@ -1,6 +1,10 @@
 import sys
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
+import pylab as py
+import matplotlib.pyplot as plt
+from qmplot import qqplot
 from manplot import *
 
 
@@ -91,8 +95,10 @@ def overlapping(filename, OL_StartEndBP):
     df.to_csv(filename, index=False)
 
     if not OL_StartEndBP:
+        ax = qqplot(data=10**-(df["P"]))
+        plt.savefig("test.QQ.png")
         manplot(filename)
-    #     qqplot(filename)
+
     # else:
     #     sigSNPsTable("sigSNPs_" + filename)
 
