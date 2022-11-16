@@ -1,41 +1,42 @@
-from pandas import DataFrame
-from scipy.stats import uniform
-from scipy.stats import randint
+import sys
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
-# sample data
-df = pd.read_csv("windowed.txt")
+import seaborn as sns
 
 
-# -log_10(pvalue)
-df["-log10(P)"] = df.P
-df.chromosome = df.chromosome.astype("category")
-df = df.sort_values('chromosome')
+def manplot(filename):
 
-# How to plot gene vs. -log10(pvalue) and colour it by chromosome?
-df[""] = range(len(df))
-df_grouped = df.groupby(('chromosome'))
+    df = pd.read_csv(filename)
 
-# manhattan plot
-fig = plt.figure(figsize=(14, 8)) # Set the figure size
-ax = fig.add_subplot(111)
-colors = ['darkred','darkgreen','darkblue', 'gold']
-x_labels = []
-x_labels_pos = []
-for num, (name, group) in enumerate(df_grouped):
-    group.plot(kind='scatter', x='ind', y='minuslog10pvalue',color=colors[num % len(colors)], ax=ax)
-    x_labels.append(name)
-    x_labels_pos.append((group['ind'].iloc[-1] - (group['ind'].iloc[-1] - group['ind'].iloc[0])/2))
-ax.set_xticks(x_labels_pos)
-ax.set_xticklabels(x_labels)
+    # if the pvalue column is not already in -log form
+    #df['-logp'] = - np.log(df["P"])
 
-# set axis limits
-ax.set_xlim([0, len(df)])
-ax.set_ylim([0, 3.5])
+    running_pos = 0
 
-# x axis label
-ax.set_xlabel('Chromosome')
+    cumulative_pos = []
 
-# show the graph
-plt.show()
+    for chrom, group_df in df.groupby("CHR"):
+        cumulative_pos.append(group_df["BP"] + running_pos)
+        running_pos += group_df["BP"].max()
+
+    df["cumulative_pos"] = pd.concat(cumulative_pos)
+
+    df['SNP number'] = df.index
+
+    sns.relplot(
+        data=df.sample(100000),
+        x='cumulative_pos',
+        y='P',
+        aspect=4,
+        hue='CHR',
+        palette='Set1'
+    )
+
+    # show the graph
+    plt.show()
+
+
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    manplot(filename)
