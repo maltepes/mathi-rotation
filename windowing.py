@@ -1,11 +1,12 @@
 import sys
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
-import pylab as py
 import matplotlib.pyplot as plt
 from qmplot import qqplot
 from manplot import *
+#from signSNPsTable import *
+
+# this is doing the bonferroni method for averaging p values, remember to comment out appropiate lines if you are using a different method
 
 
 def overlapping(filename, OL_StartEndBP):
@@ -18,8 +19,9 @@ def overlapping(filename, OL_StartEndBP):
     # drop all columns I cant take an average for, inplace means i dont have to qassoc=qassoc.drop
     qassoc.drop(labels=["NMISS", "BETA", "SE", "R2", "T"],
                 axis=1, inplace=True)
-    # take -log of p column
-    qassoc.P = -(np.log10(qassoc.P))
+
+    # take -log of p column if need be
+    #qassoc.P = -(np.log10(qassoc.P))
 
     qassoc.reset_index(drop=True, inplace=True)
 
@@ -68,11 +70,11 @@ def overlapping(filename, OL_StartEndBP):
             sub_qassoc_odd = sub_qassoc_odd.drop("BP", axis=1)
             sub_qassoc_even = sub_qassoc_even.drop("BP", axis=1)
 
-        # taking average of -log10(p) values
+        # taking min of p values for bonferroni method
         sub_qassoc_odd = sub_qassoc_odd.groupby(
-            sub_qassoc_odd.index//21).mean()
+            sub_qassoc_odd.index//21).min()
         sub_qassoc_even = sub_qassoc_even.groupby(
-            sub_qassoc_even.index//21).mean()
+            sub_qassoc_even.index//21).min()
 
         # putting SNPs back in the dataframes
         sub_qassoc_odd["SNP"] = sub_qassoc_oddSNP["SNP"]
@@ -90,17 +92,24 @@ def overlapping(filename, OL_StartEndBP):
 
     #df.drop(labels=["index"], axis = 1, inplace= True)
 
-    sigSNPs = df[df.P > 2.03]
-    sigSNPs.to_csv("sigSNPs_" + filename)
+    # needed to create sig SNP tableS
+    #sigSNPs = df[df.P > 2.03]
+    #sigSNPs.to_csv("sigSNPs_" + filename)
+
+    # multiplying by k (21) for the bonferroni method
+    df.P = 21 * df.P
+
     df.to_csv(filename, index=False)
 
     if not OL_StartEndBP:
-        ax = qqplot(data=10**-(df["P"]))
-        plt.savefig("test.QQ.png")
+        # rememeber to change if the p value column is already -log
+        ax = qqplot(data=df["P"])
+        #ax = qqplot(data=10**-(df["P"]))
+        plt.savefig("QQ" + filename + ".png")
         manplot(filename)
 
     # else:
-    #     sigSNPsTable("sigSNPs_" + filename)
+    #   sigSNPsTable("sigSNPs_" + filename)
 
 
 if __name__ == '__main__':

@@ -13,9 +13,9 @@ def manplot(filename):
     df = pd.read_csv(filename)
 
     # if the pvalue column is not already in -log form
-    # df['-logp'] = -np.log(df["P"])
+    df["-logP"] = -np.log(df["P"])
 
-    df["-logP"] = df["P"]
+    #df["-logP"] = df["P"]
 
     running_BP = 0
 
@@ -48,14 +48,14 @@ def manplot(filename):
     g.ax.set_xticks(df.groupby('CHR')['cumulative_BP'].median())
 
     g.ax.set_xticklabels(df['CHR'].unique())
-    g.ax.axhline(5, linestyle='--', linewidth=1)
+    #g.ax.axhline(5, linestyle='--', linewidth=1)
 
     g.fig.suptitle('Overlapping Windows')
 
 
 # show the graph
-    plt.ylim(0, 8.5)
-    plt.savefig("test.manplot_" + filename + ".png")
+    plt.ylim(0, 50)
+    plt.savefig("manplot_" + filename + ".png")
 
 
 if __name__ == '__main__':
