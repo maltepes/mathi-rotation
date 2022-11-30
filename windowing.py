@@ -4,16 +4,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from qmplot import qqplot
 from manplot import *
-#from signSNPsTable import *
+from signSNPsTable import *
 
-# this is doing the bonferroni method for averaging p values, remember to comment out appropiate lines if you are using a different method
+# averaging -logp values of 21 snps in each window (overlapping)
 
 
 def overlapping(filename, OL_StartEndBP):
 
     # separating file by a delimiter (any # of continuous spaces) so it can be read by pandas
     # resetting the index since i am grouping by the index (precautionary)
-    qassoc = pd.read_csv("filtered_out_MAF0.txt", sep=r"\s+",
+    qassoc = pd.read_csv("filtered_out_MAFboth10.txt", sep=r"\s+",
                          lineterminator='\n', engine='python').reset_index(drop=True)
 
     # drop all columns I cant take an average for, inplace means i dont have to qassoc=qassoc.drop
@@ -21,7 +21,7 @@ def overlapping(filename, OL_StartEndBP):
                 axis=1, inplace=True)
 
     # take -log of p column if need be
-    #qassoc.P = -(np.log10(qassoc.P))
+    qassoc.P = -(np.log10(qassoc.P))
 
     qassoc.reset_index(drop=True, inplace=True)
 
@@ -70,11 +70,11 @@ def overlapping(filename, OL_StartEndBP):
             sub_qassoc_odd = sub_qassoc_odd.drop("BP", axis=1)
             sub_qassoc_even = sub_qassoc_even.drop("BP", axis=1)
 
-        # taking min of p values for bonferroni method
+        # taking mean of 21 snps in each window
         sub_qassoc_odd = sub_qassoc_odd.groupby(
-            sub_qassoc_odd.index//21).min()
+            sub_qassoc_odd.index//21).mean()
         sub_qassoc_even = sub_qassoc_even.groupby(
-            sub_qassoc_even.index//21).min()
+            sub_qassoc_even.index//21).mean()
 
         # putting SNPs back in the dataframes
         sub_qassoc_odd["SNP"] = sub_qassoc_oddSNP["SNP"]
@@ -92,24 +92,21 @@ def overlapping(filename, OL_StartEndBP):
 
     #df.drop(labels=["index"], axis = 1, inplace= True)
 
-    # needed to create sig SNP tableS
-    #sigSNPs = df[df.P > 2.03]
-    #sigSNPs.to_csv("sigSNPs_" + filename)
-
-    # multiplying by k (21) for the bonferroni method
-    df.P = 21 * df.P
+    # needed to create sig SNP tables
+    sigSNPs = df[df.P > 2.03]
+    sigSNPs.to_csv("sigSNPs_" + filename)
 
     df.to_csv(filename, index=False)
 
     if not OL_StartEndBP:
-        # rememeber to change if the p value column is already -log
-        ax = qqplot(data=df["P"])
-        #ax = qqplot(data=10**-(df["P"]))
+        # remember to change if the p value column is already -log
+        #ax = qqplot(data=df["P"])
+        ax = qqplot(data=10**-(df["P"]))
         plt.savefig("QQ" + filename + ".png")
-        manplot(filename)
+        # manplot(filename)
 
-    # else:
-    #   sigSNPsTable("sigSNPs_" + filename)
+    else:
+        sigSNPsTable("sigSNPs_" + filename)
 
 
 if __name__ == '__main__':

@@ -10,12 +10,16 @@ import seaborn as sns
 
 def manplot(filename):
 
+    # if text file
+    # df = pd.read_csv(filename, sep=r"\s+", lineterminator = '\n', engine = 'python').reset_index(drop = True)
+
+    # if csv file
     df = pd.read_csv(filename)
 
     # if the pvalue column is not already in -log form
     df["-logP"] = -np.log(df["P"])
 
-    #df["-logP"] = df["P"]
+    # df["-logP"] = df["P"]
 
     running_BP = 0
 
@@ -32,7 +36,7 @@ def manplot(filename):
     df.CHR = df.CHR.astype(int)
 
     g = sns.relplot(
-        #data=df.sample(100000, replace=True),
+        # data=df.sample(100000, replace=True),
         data=df,
         x='cumulative_BP',
         y='-logP',
@@ -54,7 +58,7 @@ def manplot(filename):
 
 
 # show the graph
-    plt.ylim(0, 50)
+    plt.ylim(0, 35)
     plt.savefig("manplot_" + filename + ".png")
 
 
