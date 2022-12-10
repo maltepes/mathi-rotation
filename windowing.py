@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from qmplot import qqplot
 from manplot import *
-from signSNPsTable import *
+from sigSNPsTable import *
 
 # averaging -logp values of 21 snps in each window (overlapping)
 
@@ -13,10 +13,21 @@ def overlapping(filename, OL_StartEndBP):
 
     # separating file by a delimiter (any # of continuous spaces) so it can be read by pandas
     # resetting the index since i am grouping by the index (precautionary)
-    qassoc = pd.read_csv("filtered_out_MAFboth10.txt", sep=r"\s+",
-                         lineterminator='\n', engine='python').reset_index(drop=True)
 
-    # drop all columns I cant take an average for, inplace means i dont have to qassoc=qassoc.drop
+    qassoc = pd.read_csv("qassoc_imputed_postQA.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+
+    #making it so the imputed data only has the SNPs that the psuedohaploid MAF > 10% has
+    # preQA = pd.read_csv("allbrit_diploid_preQA.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+    # SNPsToFilter = pd.read_csv("filtered_out_MAFboth10.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+    
+    # preQA = preQA.dropna(subset=["P"])
+
+    # qassoc = pd.DataFrame(columns=preQA.columns)
+
+    # qassoc = preQA[(preQA.SNP.isin(SNPsToFilter.SNP))].reset_index(drop=True)
+    
+
+    # drop all columns I cant take an average for
     qassoc.drop(labels=["NMISS", "BETA", "SE", "R2", "T"],
                 axis=1, inplace=True)
 
@@ -93,7 +104,7 @@ def overlapping(filename, OL_StartEndBP):
     #df.drop(labels=["index"], axis = 1, inplace= True)
 
     # needed to create sig SNP tables
-    sigSNPs = df[df.P > 2.03]
+    sigSNPs = df[df.P > 3.0]
     sigSNPs.to_csv("sigSNPs_" + filename)
 
     df.to_csv(filename, index=False)

@@ -2,6 +2,9 @@ import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from IPython.display import display
+import plotly.figure_factory as ff
+
 
 
 def sigSNPsTable(filename):
@@ -33,8 +36,20 @@ def sigSNPsTable(filename):
         
         table = pd.concat([table, groupedDF])
         
-    table.to_csv("output.csv", index=False)
+    #table.to_csv("sigSNPsTable.csv", index=False)
+    table = table.astype({"CHR": int, "Starting BP": int, "Ending BP": int})
+    table = table.round(decimals=3)
+    table['Starting BP'] = table.apply(lambda x: "{:,}".format(x['Starting BP']), axis=1)
+    table['Ending BP'] = table.apply(lambda x: "{:,}".format(x['Ending BP']), axis=1)
+    table.rename(columns = {"P":"-logP"}, inplace = True)
+    table = table.sort_values(by=["-logP"], ascending=False)
 
+    fig =  ff.create_table(table)
+    fig.update_layout(
+    autosize=True)
+
+    fig.write_image("sigSNPsTable.png", scale=1)
+    
 
 if __name__ == '__main__':
     filename = sys.argv[1]
