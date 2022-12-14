@@ -14,17 +14,19 @@ def overlapping(filename, OL_StartEndBP):
     # separating file by a delimiter (any # of continuous spaces) so it can be read by pandas
     # resetting the index since i am grouping by the index (precautionary)
 
-    qassoc = pd.read_csv("qassoc_imputed_postQA.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+    #qassoc = pd.read_csv("allbrit_imputed.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
 
     #making it so the imputed data only has the SNPs that the psuedohaploid MAF > 10% has
-    # preQA = pd.read_csv("allbrit_diploid_preQA.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
-    # SNPsToFilter = pd.read_csv("filtered_out_MAFboth10.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+    preQA = pd.read_csv("allbrit_imputedLINpreQA.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
+    SNPsToFilter = pd.read_csv("filtered_out_MAFboth10.txt", sep=r"\s+", lineterminator='\n', engine='python').reset_index(drop=True)
     
-    # preQA = preQA.dropna(subset=["P"])
+    preQA = preQA.dropna(subset=["P"])
 
-    # qassoc = pd.DataFrame(columns=preQA.columns)
+    qassoc = pd.DataFrame(columns=preQA.columns)
 
-    # qassoc = preQA[(preQA.SNP.isin(SNPsToFilter.SNP))].reset_index(drop=True)
+    qassoc = preQA[(preQA.SNP.isin(SNPsToFilter.SNP))].reset_index(drop=True)
+
+    qassoc.to_csv("LIN_reattemptedImputed_postQA.csv", index=False)
     
 
     # drop all columns I cant take an average for
